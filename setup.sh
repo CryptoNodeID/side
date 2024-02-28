@@ -18,20 +18,8 @@ if [ -z "$GO_VERSION" ]; then
 else
     echo "Go version 1.22.0 is already installed."
 fi
-if ! command -v make &> /dev/null; then
-    echo "make is not installed. Installing make..."
-    sudo apt-get update
-    sudo apt-get install -y make
-else
-    echo "make is already installed."
-fi
-if ! command -v gcc &> /dev/null; then
-    echo "gcc is not installed. Installing gcc..."
-    sudo apt-get update
-    sudo apt-get install -y gcc
-else
-    echo "gcc is already installed."
-fi
+sudo apt -qy install curl git jq lz4 build-essential unzip
+rm -rf side
 git clone https://github.com/sideprotocol/side.git
 cd side
 git checkout v0.6.0
@@ -41,14 +29,19 @@ if ! grep -q 'export SIDED_KEYRING_BACKEND=file' ~/.profile; then
 fi
 source ~/.profile
 sided version
+
+mkdir -p $HOME/.side/cosmovisor/genesis/bin
+mkdir -p $HOME/.side/cosmovisor/upgrades
+cp $(which sided) $HOME/.side/cosmovisor/genesis/bin/
+
 read -p "Enter validator key name: " VALIDATOR_KEY_NAME
 if [ -z "$VALIDATOR_KEY_NAME" ]; then
     echo "Error: No validator key name provided."
     exit 1
 fi
-read -p "Do you want to recover wallet? [Y/n]: " RECOVER
+read -p "Do you want to recover wallet? [y/N]: " RECOVER
 RECOVER=$(echo "$RECOVER" | tr '[:upper:]' '[:lower:]')
-if [[ "$RECOVER" == "y" || "$RECOVER" == "yes" || -z "$RECOVER" ]]; then
+if [[ "$RECOVER" == "y" || "$RECOVER" == "yes" ]]; then
     sided keys add $VALIDATOR_KEY_NAME --recover
 else
     sided keys add $VALIDATOR_KEY_NAME
@@ -69,8 +62,12 @@ sed -i \
   $HOME/.side/config/app.toml
 indexer="null" && \
 sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" $HOME/.side/config/config.toml
+
+# Helper scripts
+rm -rf list_keys.sh check_balance.sh create_validator.sh unjail_validator.sh check_validator.sh start_side.sh check_log.sh
+echo "sided keys list" > list_keys.sh && chmod +x list_keys.sh
 echo "sided q bank balances $(sided keys show $VALIDATOR_KEY_NAME -a)" > check_balance.sh && chmod +x check_balance.sh
-cat <<EOF > create_validator.sh
+tee create_validator.sh > /dev/null <<EOF
 #!/bin/bash
 sided tx staking create-validator \
   --amount=1000000uside \
@@ -85,26 +82,59 @@ sided tx staking create-validator \
   --from=$VALIDATOR_KEY_NAME
 EOF
 chmod +x create_validator.sh
-cat <<EOF > unjail_validator.sh
+tee unjail_validator.sh > /dev/null <<EOF
 #!/bin/bash
 sided tx slashing unjail \
  --from=$VALIDATOR_KEY_NAME \
  --chain-id="side-testnet-2"
 EOF
 chmod +x unjail_validator.sh
-cat <<EOF > check_validator.sh
+tee check_validator.sh > /dev/null <<EOF
 #!/bin/bash
 sided query tendermint-validator-set | grep "\$(sided tendermint show-address)"
 EOF
 chmod +x check_validator.sh
-cat <<EOF > /etc/logrotate.d/sided
-$HOME/side/*.out {
-    size 10M
-    hourly
-    rotate 5
-    copytruncate
-    missingok
-    compress
-    compresscmd /bin/gzip
-}
+tee start_side.sh > /dev/null <<EOF
+systemctl daemon-reload
+systemctl enable sided
+systemctl restart sided
 EOF
+chmod +x start_side.sh
+tee check_log.sh > /dev/null <<EOF
+journalctl -u sided -f
+EOF
+chmod +x check_log.sh
+
+if ! command -v cosmovisor &> /dev/null; then
+    wget https://github.com/cosmos/cosmos-sdk/releases/download/cosmovisor%2Fv1.5.0/cosmovisor-v1.5.0-linux-amd64.tar.gz
+    tar -xvzf cosmovisor-v1.5.0-linux-amd64.tar.gz
+    rm cosmovisor-v1.5.0-linux-amd64.tar.gz
+    sudo cp cosmovisor /usr/local/bin
+fi
+sudo tee /etc/systemd/system/sided.service > /dev/null <<EOF
+[Unit]
+Description=Side daemon
+After=network-online.target
+
+[Service]
+User=$USER
+ExecStart=$(which cosmovisor) run start --x-crisis-skip-assert-invariants
+Restart=always
+RestartSec=3
+LimitNOFILE=infinity
+
+Environment="DAEMON_NAME=sided"
+Environment="DAEMON_HOME=${HOME}/.side"
+Environment="DAEMON_RESTART_AFTER_UPGRADE=true"
+Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=false"
+
+[Install]
+WantedBy=multi-user.target
+EOF
+sudo systemctl daemon-reload
+read -p "Do you want to enable the sided service? (y/N): " ENABLE_SERVICE
+if [[ "$ENABLE_SERVICE" =~ ^[Yy](es)?$ ]]; then
+    sudo systemctl enable sided.service
+else
+    echo "Skipping enabling sided service."
+fi
