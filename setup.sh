@@ -65,7 +65,7 @@ indexer="null" && \
 sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" $HOME/.side/config/config.toml
 
 # Helper scripts
-cd "$(dirname "$0")"
+cd "$(dirname ${BASH_SOURCE[0]})"
 rm -rf list_keys.sh check_balance.sh create_validator.sh unjail_validator.sh check_validator.sh start_side.sh check_log.sh
 echo "sided keys list" > list_keys.sh && chmod +x list_keys.sh
 echo "sided q bank balances $(sided keys show $VALIDATOR_KEY_NAME -a)" > check_balance.sh && chmod +x check_balance.sh
