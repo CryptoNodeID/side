@@ -7,6 +7,6 @@
 #### run setup command : 
     cd side && chmod ug+x *.sh && ./setup.sh
 #### follow the instruction and then run below command to start the node :
-    ./start_sided.sh
+    ./start_side.sh
 #### Claim testnet faucet, fund address in the node and wait until node syncing done then run :
     ./create_validator.sh
