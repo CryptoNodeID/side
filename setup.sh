@@ -83,7 +83,7 @@ sided tx staking create-validator \
   --commission-max-rate="0.20" \
   --commission-max-change-rate="0.01" \
   --min-self-delegation="1" \
-  --fees="200uside" \
+  --fees="1000uside" \
   --from=$VALIDATOR_KEY_NAME
 EOF
 chmod +x create_validator.sh
