@@ -18,9 +18,7 @@ GO_VERSION=$(go version 2>/dev/null | grep -oP 'go1\.22\.0')
 if [ -z "$(echo "$GO_VERSION" | grep -E 'go1\.22\.0')" ]; then
     echo "Go is not installed or not version 1.22.0. Installing Go 1.22.0..."
     wget https://go.dev/dl/go1.22.0.linux-amd64.tar.gz
-    if [ -n "$GO_VERSION" ]; then
-        sudo rm -rf $(which go)
-    fi
+    sudo rm -rf $(which go)
     sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.22.0.linux-amd64.tar.gz
     rm go1.22.0.linux-amd64.tar.gz
 else
