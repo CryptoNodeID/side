@@ -7,17 +7,20 @@ cd ${INSTALLATION_DIR}
 if ! grep -q 'export GOPATH=' ~/.profile; then
         echo "export GOPATH=$HOME/go" >> ~/.profile
 fi
-if ! grep -q 'export PATH=.*$GOPATH/bin' ~/.profile; then
-    echo "export PATH=$PATH:$GOPATH/bin" >> ~/.profile
-fi
 if ! grep -q 'export PATH=.*:/usr/local/go/bin' ~/.profile; then
     echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.profile
 fi
+if ! grep -q 'export PATH=.*$GOPATH/bin' ~/.profile; then
+    echo "export PATH=$PATH:$GOPATH/bin" >> ~/.profile
+fi
 source ~/.profile
 GO_VERSION=$(go version 2>/dev/null | grep -oP 'go1\.22\.0')
-if [ -z "$GO_VERSION" ]; then
+if [ -z "$(echo "$GO_VERSION" | grep -E 'go1\.22\.0')" ]; then
     echo "Go is not installed or not version 1.22.0. Installing Go 1.22.0..."
     wget https://go.dev/dl/go1.22.0.linux-amd64.tar.gz
+    if [ -n "$GO_VERSION" ]; then
+        sudo rm -rf $(which go)
+    fi
     sudo rm -rf /usr/local/go && sudo tar -C /usr/local -xzf go1.22.0.linux-amd64.tar.gz
     rm go1.22.0.linux-amd64.tar.gz
 else
