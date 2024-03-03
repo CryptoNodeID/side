@@ -1,5 +1,5 @@
 #!/bin/bash
-DAEMON_NAME=${DAEMON_NAME}
+DAEMON_NAME=sided
 DAEMON_HOME=$HOME/.side
 INSTALLATION_DIR=$(dirname "$(realpath "$0")")
 GOPATH=$HOME/go
