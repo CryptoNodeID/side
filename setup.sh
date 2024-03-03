@@ -24,7 +24,7 @@ else
     echo "Go version 1.22.0 is already installed."
 fi
 sudo apt -qy install curl git jq lz4 build-essential unzip
-rm -rf ${INSTALLATION_DIR}
+rm -rf side
 rm -rf ${DAEMON_HOME}
 git clone https://github.com/sideprotocol/side.git
 cd side
