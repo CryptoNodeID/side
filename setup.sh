@@ -5,15 +5,17 @@ INSTALLATION_DIR=$(dirname "$(realpath "$0")")
 GOPATH=$HOME/go
 cd ${INSTALLATION_DIR}
 if ! grep -q 'export GOPATH=' ~/.profile; then
-        echo "export GOPATH=$HOME/go" >> ~/.profile
+    echo "export GOPATH=$HOME/go" >> ~/.profile
+    source ~/.profile
 fi
 if ! grep -q 'export PATH=.*:/usr/local/go/bin' ~/.profile; then
     echo "export PATH=$PATH:/usr/local/go/bin" >> ~/.profile
+    source ~/.profile
 fi
 if ! grep -q 'export PATH=.*$GOPATH/bin' ~/.profile; then
     echo "export PATH=$PATH:$GOPATH/bin" >> ~/.profile
+    source ~/.profile
 fi
-source ~/.profile
 GO_VERSION=$(go version 2>/dev/null | grep -oP 'go1\.22\.0')
 if [ -z "$(echo "$GO_VERSION" | grep -E 'go1\.22\.0')" ]; then
     echo "Go is not installed or not version 1.22.0. Installing Go 1.22.0..."
