@@ -3,6 +3,7 @@ DAEMON_NAME=sided
 DAEMON_HOME=$HOME/.side
 INSTALLATION_DIR=$(dirname "$(realpath "$0")")
 CHAIN_ID='side-testnet-3'
+DENOM='uside'
 GOPATH=$HOME/go
 cd ${INSTALLATION_DIR}
 if ! grep -q "export GOPATH=" ~/.profile; then
@@ -93,7 +94,7 @@ fi
 tee create_validator.sh > /dev/null <<EOF
 #!/bin/bash
 ${DAEMON_NAME} tx staking create-validator \
-  --amount=1000000uside \
+  --amount=1000000${DENOM} \
   --pubkey=\$(${DAEMON_NAME} tendermint show-validator) \
   --moniker="$VALIDATOR_KEY_NAME" \
   --chain-id="$CHAIN_ID" \
@@ -101,7 +102,7 @@ ${DAEMON_NAME} tx staking create-validator \
   --commission-max-rate="0.20" \
   --commission-max-change-rate="0.01" \
   --min-self-delegation="1" \
-  --fees="1000uside" \
+  --fees="1000${DENOM}" \
   --from=$VALIDATOR_KEY_NAME
 EOF
 chmod +x create_validator.sh
@@ -109,7 +110,8 @@ tee unjail_validator.sh > /dev/null <<EOF
 #!/bin/bash
 ${DAEMON_NAME} tx slashing unjail \
  --from=$VALIDATOR_KEY_NAME \
- --chain-id="$CHAIN_ID"
+ --chain-id="$CHAIN_ID" \
+ --fees="1000${DENOM}"
 EOF
 chmod +x unjail_validator.sh
 tee check_validator.sh > /dev/null <<EOF
@@ -117,12 +119,12 @@ tee check_validator.sh > /dev/null <<EOF
 ${DAEMON_NAME} query tendermint-validator-set | grep "\$(${DAEMON_NAME} tendermint show-address)"
 EOF
 chmod +x check_validator.sh
-tee start_side.sh > /dev/null <<EOF
+tee start_${DAEMON_NAME}.sh > /dev/null <<EOF
 sudo systemctl daemon-reload
 sudo systemctl enable ${DAEMON_NAME}
 sudo systemctl restart ${DAEMON_NAME}
 EOF
-chmod +x start_side.sh
+chmod +x start_${DAEMON_NAME}.sh
 tee check_log.sh > /dev/null <<EOF
 journalctl -u ${DAEMON_NAME} -f
 EOF
