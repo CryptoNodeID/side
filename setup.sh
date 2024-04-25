@@ -28,6 +28,22 @@ if ! grep -q "export PATH=.*$GOPATH/bin" ~/.profile; then
     echo "export PATH=$PATH:$GOPATH/bin" >> ~/.profile
     source ~/.profile
 fi
+if ! grep -q "export DAEMON_NAME=${DAEMON_NAME}" $HOME/.profile; then
+    echo "export DAEMON_NAME=${DAEMON_NAME}" >> $HOME/.profile
+fi
+if ! grep -q "export DAEMON_HOME=${DAEMON_HOME}" $HOME/.profile; then
+    echo "export DAEMON_HOME=${DAEMON_HOME}" >> $HOME/.profile
+fi
+if ! grep -q "export DAEMON_RESTART_AFTER_UPGRADE=true" $HOME/.profile; then
+    echo "export DAEMON_RESTART_AFTER_UPGRADE=true" >> $HOME/.profile
+fi
+if ! grep -q "export DAEMON_ALLOW_DOWNLOAD_BINARIES=false" $HOME/.profile; then
+    echo "export DAEMON_ALLOW_DOWNLOAD_BINARIES=false" >> $HOME/.profile
+fi
+if ! grep -q "export CHAIN_ID=${CHAIN_ID}" $HOME/.profile; then
+    echo "export CHAIN_ID=${CHAIN_ID}" >> $HOME/.profile
+fi
+source $HOME/.profile
 ##Check and install Go
 GO_VERSION=$(go version 2>/dev/null | grep -oP 'go1\.22\.0')
 if [ -z "$(echo "$GO_VERSION" | grep -E 'go1\.22\.0')" ]; then
@@ -243,23 +259,6 @@ Environment="DAEMON_ALLOW_DOWNLOAD_BINARIES=false"
 [Install]
 WantedBy=multi-user.target
 EOF
-
-if ! grep -q 'export DAEMON_NAME=' $HOME/.profile; then
-    echo "export DAEMON_NAME=${DAEMON_NAME}" >> $HOME/.profile
-fi
-if ! grep -q 'export DAEMON_HOME=' $HOME/.profile; then
-    echo "export DAEMON_HOME=${DAEMON_HOME}" >> $HOME/.profile
-fi
-if ! grep -q 'export DAEMON_RESTART_AFTER_UPGRADE=' $HOME/.profile; then
-    echo "export DAEMON_RESTART_AFTER_UPGRADE=true" >> $HOME/.profile
-fi
-if ! grep -q 'export DAEMON_ALLOW_DOWNLOAD_BINARIES=' $HOME/.profile; then
-    echo "export DAEMON_ALLOW_DOWNLOAD_BINARIES=false" >> $HOME/.profile
-fi
-if ! grep -q 'export CHAIN_ID=' $HOME/.profile; then
-    echo "export CHAIN_ID=${CHAIN_ID}" >> $HOME/.profile
-fi
-source $HOME/.profile
 
 sudo systemctl daemon-reload
 read -p "Do you want to enable the ${DAEMON_NAME} service? (y/N): " ENABLE_SERVICE
