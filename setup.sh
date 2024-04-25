@@ -264,7 +264,7 @@ source $HOME/.profile
 sudo systemctl daemon-reload
 read -p "Do you want to enable the ${DAEMON_NAME} service? (y/N): " ENABLE_SERVICE
 if [[ "$ENABLE_SERVICE" =~ ^[Yy](es)?$ ]]; then
-    sudo systemctl enable ${DAEMON_NAME}.service
+    sudo systemctl enable ${SERVICE_NAME}.service
 else
-    echo "Skipping enabling ${DAEMON_NAME} service."
+    echo "Skipping enabling ${SERVICE_NAME} service."
 fi
