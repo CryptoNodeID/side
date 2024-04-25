@@ -5,7 +5,7 @@ SERVICE_NAME=sided-testnet
 INSTALLATION_DIR=$(dirname "$(realpath "$0")")
 CHAIN_ID='side-testnet-3'
 GENESIS_URL="https://github.com/sideprotocol/testnet/raw/main/side-testnet-3/genesis.json"
-PEERS=""
+PEERS="739b859cd76a5d4f05d868b7bdf3f826bf185e4c@side-testnet-peer.cryptonode.id:22656,6decdc5565bf5232cdf5597a7784bfe828c32277@158.220.126.137:11656,bbbf623474e377664673bde3256fc35a36ba0df1@side-testnet-peer.itrocket.net:45656,1ace1dc4d8968f6946d0ede46e6c10b2eefb60bb@65.109.78.52:26656,996c8e0d0c331c19984c543f6a3ec8520131fb7e@95.164.3.79:34656,85cfebdb59615a1bf427106a32b30c91568fd52a@135.181.216.54:3450,351db3719747088c9a980685a7ca40e84e7211e5@65.109.107.172:26656,dc09bc2843f6097d145d79c232d2b2749f1e88ce@37.27.48.77:29656,a435b4f6bd8a3372d5a3a96cb781418c20913391@173.249.59.66:22656,cbd5e3faeead45960c3ce1388454025445f820da@65.108.73.186:26656,9c14080752bdfa33f4624f83cd155e2d3976e303@65.108.231.124:45656"
 RPC="https://side-testnet-rpc.cryptonode.id:443"
 SEEDS="00170c0c23c3e97c740680a7f881511faf68289a@202.182.119.24:26656"
 DENOM='uside'
@@ -141,16 +141,20 @@ fi
 
 #Set configs
 wget ${GENESIS_URL} -O ${DAEMON_HOME}/config/genesis.json
-sed -i 's/seeds = ""/seeds = "'"$SEEDS"'"/' ${DAEMON_HOME}/config/config.toml
+sed -i.bak \
+    -e "/^[[:space:]]*seeds =/ s/=.*/= \"$SEEDS\"/" \
+    -e "s/^[[:space:]]*persistent_peers *=.*/persistent_peers = \"$PEERS\"/" \
+    ${DAEMON_HOME}/config/config.toml
+
 sed -i 's/minimum-gas-prices = "0stake"/minimum-gas-prices = "0.005uside"/' ${DAEMON_HOME}/config/app.toml
 sed -i \
-  -e 's|^pruning *=.*|pruning = "custom"|' \
-  -e 's|^pruning-keep-recent *=.*|pruning-keep-recent = "100"|' \
-  -e 's|^pruning-keep-every *=.*|pruning-keep-every = "0"|' \
-  -e 's|^pruning-interval *=.*|pruning-interval = "10"|' \
+  -e 's|^[[:space:]]*pruning *=.*|pruning = "custom"|' \
+  -e 's|^[[:space:]]*pruning-keep-recent *=.*|pruning-keep-recent = "100"|' \
+  -e 's|^[[:space:]]*pruning-keep-every *=.*|pruning-keep-every = "0"|' \
+  -e 's|^[[:space:]]*pruning-interval *=.*|pruning-interval = "10"|' \
   ${DAEMON_HOME}/config/app.toml
 indexer="null" && \
-sed -i -e "s/^indexer *=.*/indexer = \"$indexer\"/" ${DAEMON_HOME}/config/config.toml
+sed -i -e "s/^[[:space:]]*indexer *=.*/indexer = \"$indexer\"/" ${DAEMON_HOME}/config/config.toml
 
 # Helper scripts
 cd ${INSTALLATION_DIR}
@@ -235,7 +239,7 @@ EOF
 chmod ug+x stop_${DAEMON_NAME}.sh
 
 tee check_log.sh > /dev/null <<EOF
-sudo journalctl -u ${DAEMON_NAME} -f
+sudo journalctl -u ${SERVICE_NAME} -f
 EOF
 chmod ug+x check_log.sh
 
