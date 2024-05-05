@@ -201,7 +201,7 @@ ${DAEMON_NAME} tx staking create-validator \\
   --identity="${INPUT_IDENTITY}" \\
   --website="${INPUT_WEBSITE}" \\
   --details="${INPUT_DETAILS}" \\
-  --security_contact="${INPUT_EMAIL}" \\
+  --security-contact="${INPUT_EMAIL}" \\
   --chain-id="$CHAIN_ID" \\
   --commission-rate="0.10" \\
   --commission-max-rate="0.20" \\
