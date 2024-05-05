@@ -3,15 +3,15 @@ DAEMON_NAME=sided
 DAEMON_HOME=$HOME/.side
 SERVICE_NAME=sided-testnet
 INSTALLATION_DIR=$(dirname "$(realpath "$0")")
-CHAIN_ID='side-testnet-3'
-GENESIS_URL="https://github.com/sideprotocol/testnet/raw/main/side-testnet-3/genesis.json"
-PEERS="739b859cd76a5d4f05d868b7bdf3f826bf185e4c@side-testnet-peer.cryptonode.id:22656,6decdc5565bf5232cdf5597a7784bfe828c32277@158.220.126.137:11656,bbbf623474e377664673bde3256fc35a36ba0df1@side-testnet-peer.itrocket.net:45656,1ace1dc4d8968f6946d0ede46e6c10b2eefb60bb@65.109.78.52:26656,996c8e0d0c331c19984c543f6a3ec8520131fb7e@95.164.3.79:34656,85cfebdb59615a1bf427106a32b30c91568fd52a@135.181.216.54:3450,351db3719747088c9a980685a7ca40e84e7211e5@65.109.107.172:26656,dc09bc2843f6097d145d79c232d2b2749f1e88ce@37.27.48.77:29656,a435b4f6bd8a3372d5a3a96cb781418c20913391@173.249.59.66:22656,cbd5e3faeead45960c3ce1388454025445f820da@65.108.73.186:26656,9c14080752bdfa33f4624f83cd155e2d3976e303@65.108.231.124:45656"
+CHAIN_ID='S2-testnet-1'
+GENESIS_URL="https://raw.githubusercontent.com/sideprotocol/testnet/main/S2-testnet-1/genesis.json"
+PEERS="43cb99189637d1e35b8f11c1580cff305157c94b@54.249.68.205:26656"
 RPC="https://side-testnet-rpc.cryptonode.id:443"
-SEEDS="00170c0c23c3e97c740680a7f881511faf68289a@202.182.119.24:26656"
+SEEDS="582dedd866dd77f25ac0575118cf32df1ee50f98@202.182.119.24:26656"
 DENOM='uside'
 REPO="https://github.com/sideprotocol/side.git"
 REPO_DIR="side"
-BRANCH="v0.7.0"
+BRANCH="v0.8.0"
 GOPATH=$HOME/go
 
 #Prerequisites
@@ -120,9 +120,9 @@ sudo ln -s ${DAEMON_HOME}/cosmovisor/current/bin/${DAEMON_NAME} /usr/local/bin/$
 read -p "Do you want to recover wallet? [y/N]: " RECOVER
 RECOVER=$(echo "$RECOVER" | tr '[:upper:]' '[:lower:]')
 if [[ "$RECOVER" == "y" || "$RECOVER" == "yes" ]]; then
-    ${DAEMON_NAME} keys add $VALIDATOR_KEY_NAME --recover
+    ${DAEMON_NAME} keys add $VALIDATOR_KEY_NAME --key-type="segwit" --recover
 else
-    ${DAEMON_NAME} keys add $VALIDATOR_KEY_NAME
+    ${DAEMON_NAME} keys add $VALIDATOR_KEY_NAME --key-type="segwit"
 fi
 ${DAEMON_NAME} config chain-id $CHAIN_ID
 ${DAEMON_NAME} init $VALIDATOR_KEY_NAME --chain-id=$CHAIN_ID
