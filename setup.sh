@@ -11,7 +11,7 @@ SEEDS="582dedd866dd77f25ac0575118cf32df1ee50f98@202.182.119.24:26656"
 DENOM='uside'
 REPO="https://github.com/sideprotocol/side.git"
 REPO_DIR="side"
-BRANCH="v0.8.0"
+BRANCH="v0.8.1"
 GOPATH=$HOME/go
 
 #Prerequisites
@@ -112,7 +112,7 @@ read -p "Press enter to continue or Ctrl+C to cancel"
 
 mkdir -p ${DAEMON_HOME}/cosmovisor/genesis/bin
 mkdir -p ${DAEMON_HOME}/cosmovisor/upgrades
-cp $(which ${DAEMON_NAME}) ${DAEMON_HOME}/cosmovisor/genesis/bin/
+cp $GOPATH/bin/${DAEMON_NAME} ${DAEMON_HOME}/cosmovisor/genesis/bin/
 
 sudo ln -s ${DAEMON_HOME}/cosmovisor/genesis ${DAEMON_HOME}/cosmovisor/current -f
 sudo ln -s ${DAEMON_HOME}/cosmovisor/current/bin/${DAEMON_NAME} /usr/local/bin/${DAEMON_NAME} -f
