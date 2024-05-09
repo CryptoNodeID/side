@@ -106,6 +106,9 @@ make install
 if ! grep -q 'export KEYRING_BACKEND=file' ~/.profile; then
     echo "export KEYRING_BACKEND=file" >> ~/.profile
 fi
+if ! grep -q 'export WALLET='${VALIDATOR_KEY_NAME} ~/.profile; then
+    echo "export WALLET=${VALIDATOR_KEY_NAME}" >> ~/.profile
+fi
 source ~/.profile
 echo "${DAEMON_NAME} version: "$(${DAEMON_NAME} --home ${DAEMON_HOME} version)
 read -p "Press enter to continue or Ctrl+C to cancel"
